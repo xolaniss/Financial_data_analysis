@@ -20,13 +20,13 @@ function(rawdata, ticker) {
   data.raw <-  cbind(data.raw[, 1:4], data.raw[, 6], data.raw[, 5]) 
   return(data.raw)
 }
-load.fred <-
-function(rawdata, symbol){ 
-  temp <- read.csv(rawdata, header = TRUE) 
-  temp <- subset(temp, temp[, 2] != ".")
+
+load.fred <- function(data = "DGS3MO.csv", symbol = "DGS3MO") {
+  temp <- read.csv(data, header = TRUE)
+  temp <- subset(temp, temp[, 2]!=".")
   date <- ymd(temp$DATE)
   value <- as.numeric(as.character(temp[, 2]))
-  temp2 <- xts(value, order.by = date) 
-  names(temp2) <-  symbol
-  return(temp2)
+  temp2 <- xts(value, order.by = date)
+  names(temp2) <- symbol
+  temp2
 }

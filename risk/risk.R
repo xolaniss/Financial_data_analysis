@@ -183,8 +183,8 @@ port.sd <- sd(rets$Port.Ret)
 var01.gauss <- abs((port.ret + qnorm(p = 0.01)*port.sd)* 1465801)
 var01.gauss
 
-var.05.gauss <- abs((port.ret + qnorm(p = 0.05)*port.sd)* 1465801)
-var.05.gauss
+var05.gauss <- abs((port.ret + qnorm(p = 0.05)*port.sd)* 1465801)
+var05.gauss
 
 # Historical VaR ----------------------------------------------------------
 
@@ -233,7 +233,37 @@ abline(v = -quantile(-sim.pnl$Pnl, 0.95), col = "blue")
 lines(x, y, type = "l", col = "darkgreen") 
 
 
+# Gaussian ES -------------------------------------------------------------
+es01.gause <- 1465801 * (port.ret + port.sd * dnorm(qnorm(.01)) / 0.01)
+es01.gause
+es05.gause <- 1465801 * (port.ret + port.sd * dnorm(qnorm(.05)) / 0.05)
+es05.gause
+
+# Historial ES ------------------------------------------------------------
+var01.limit <- -var01.hist
+var01.limit 
+var05.limit <-  -var05.hist
+var05.limit
+
+es.pnl <- sim.pnl
+es.pnl$d01 <- ifelse(es.pnl$Pnl < var01.limit, 1, 0)
+es.pnl$d05 <- ifelse(es.pnl$Pnl < var05.limit, 1, 0)
+head.tail(es.pnl)
+
+shortfall01 <- subset(es.pnl[, 1:2], d01 == 1)
+dim(shortfall01)
+
+shortfall05 <- subset(es.pnl[, c(1,3)], d05 == 1)
+dim(shortfall05)
+
+es01.hist <- -mean(shortfall01$Pnl)
+es01.hist
+es05.hist <- -mean(shortfall05$Pnl)
+es05.hist
 
 
-
-
+combo <- rbind(cbind(var01.hist, es01.hist, var01.gauss, es01.gause),
+               cbind(var05.hist, es05.hist, var05.gauss, es05.gause))
+colnames(combo) <-  c("VaR Historical","ES Historical","VaR Gaussian", "ES Gaussian")
+rownames(combo) <-  c("1% 1−Day", "5% 1−Day")
+combo
